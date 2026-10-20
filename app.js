@@ -30,16 +30,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const GENRES = [
-  "힙합",
-  "팝",
-  "발라드",
-  "재즈",
-  "록",
-  "밴드",
-  "R&B",
-  "하우스",
-  "테크노",
-  "클래식"
+  "힙합", "팝", "발라드", "재즈", "록",
+  "밴드", "R&B", "하우스", "테크노", "클래식"
 ];
 
 let uid = null;
@@ -73,7 +65,9 @@ const stars = (n) => {
 };
 
 const when = (ts) =>
-  ts?.toDate ? ts.toDate().toLocaleString("ko-KR") : "방금 전";
+  ts?.toDate
+    ? ts.toDate().toLocaleString("ko-KR")
+    : "방금 전";
 
 const savedNick = () => localStorage.getItem("nick") || "";
 
@@ -94,7 +88,6 @@ const SORTS = {
 
 /* =========================
    앨범 커버 검색
-   iTunes Search API
 ========================= */
 
 const art = (u) => u.replace("100x100bb", "600x600bb");
@@ -127,8 +120,7 @@ function findCovers(artist, title) {
 
     const term = encodeURIComponent((artist + " " + title).trim());
 
-    s.src =
-      `https://itunes.apple.com/search?media=music&entity=album&limit=8&country=KR&term=${term}&callback=${cb}`;
+    s.src = `https://itunes.apple.com/search?media=music&entity=album&limit=8&country=KR&term=${term}&callback=${cb}`;
 
     document.head.append(s);
   });
@@ -142,9 +134,7 @@ const pickBtn = (x, act) =>
 
 
 /* =========================
-   로그인
-   일반 사용자: 익명 로그인
-   관리자: Google 로그인
+   로그인 및 관리자 확인
 ========================= */
 
 onAuthStateChanged(auth, (u) => {
@@ -160,7 +150,8 @@ onAuthStateChanged(auth, (u) => {
   isAdmin =
     !u.isAnonymous &&
     u.emailVerified &&
-    (u.email || "").toLowerCase() === adminEmail.toLowerCase();
+    (u.email || "").toLowerCase() ===
+      (adminEmail || "").toLowerCase();
 
   $("#authBtn").textContent =
     u.isAnonymous ? "🔑 관리자 로그인" : "로그아웃";
@@ -173,10 +164,14 @@ onAuthStateChanged(auth, (u) => {
 
 $("#authBtn").onclick = () => {
   if (auth.currentUser && !auth.currentUser.isAnonymous) {
-    signOut(auth);
+    signOut(auth).catch((e) => {
+      alert("로그아웃 실패: " + e.message);
+    });
   } else {
     signInWithPopup(auth, new GoogleAuthProvider())
-      .catch((e) => alert("로그인 실패: " + e.message));
+      .catch((e) => {
+        alert("로그인 실패: " + e.message);
+      });
   }
 };
 
@@ -205,17 +200,16 @@ onSnapshot(
 
 
 /* =========================
-   장르 목록 및 글 개수
+   장르 목록
 ========================= */
 
 function renderChips() {
   const base = posts.filter((p) => p.type === tab);
 
   $("#genres").innerHTML = ["전체", ...GENRES].map((g) => {
-    const n =
-      g === "전체"
-        ? base.length
-        : base.filter((p) => p.genre === g).length;
+    const n = g === "전체"
+      ? base.length
+      : base.filter((p) => p.genre === g).length;
 
     return `<button class="chip${g === genre ? " on" : ""}" data-g="${esc(g)}">${esc(g)}<i>${n}</i></button>`;
   }).join("");
@@ -230,10 +224,9 @@ function render() {
   renderChips();
 
   const list = posts
-    .filter(
-      (p) =>
-        p.type === tab &&
-        (genre === "전체" || p.genre === genre)
+    .filter((p) =>
+      p.type === tab &&
+      (genre === "전체" || p.genre === genre)
     )
     .sort(SORTS[sort]);
 
@@ -250,16 +243,15 @@ function render() {
 
 
 /* =========================
-   앨범 커버 변경 패널
+   커버 변경 패널
 ========================= */
 
 function coverEditor() {
-  const list =
-    cands === "loading"
-      ? '<p class="empty">검색 중…</p>'
-      : cands?.length
-        ? cands.map((x) => pickBtn(x, "cpick")).join("")
-        : '<p class="empty">검색 결과가 없어요. 검색어를 바꾸거나 주소를 직접 넣어주세요.</p>';
+  const list = cands === "loading"
+    ? '<p class="empty">검색 중…</p>'
+    : cands?.length
+      ? cands.map((x) => pickBtn(x, "cpick")).join("")
+      : '<p class="empty">검색 결과가 없어요. 검색어를 바꾸거나 주소를 직접 넣어주세요.</p>';
 
   return `
   <div class="coveredit">
@@ -301,7 +293,6 @@ function card(p) {
     ${album ? cover : ""}
 
     <div class="body">
-
       <h3>
         ${esc(p.title)}
         <small>${esc(p.artist)}</small>
@@ -310,14 +301,12 @@ function card(p) {
 
       <div class="stars">${stars(p.rating)}</div>
 
-      ${
-        album
-          ? `<p class="tracks">
-              <span class="best">👍 베스트 트랙: ${esc(p.best || "-")}</span>
-              <span class="worst">👎 워스트 트랙: ${esc(p.worst || "-")}</span>
-            </p>`
-          : ""
-      }
+      ${album ? `
+        <p class="tracks">
+          <span class="best">👍 베스트 트랙: ${esc(p.best || "-")}</span>
+          <span class="worst">👎 워스트 트랙: ${esc(p.worst || "-")}</span>
+        </p>
+      ` : ""}
 
       <p class="review">${esc(p.review)}</p>
 
@@ -326,22 +315,19 @@ function card(p) {
 
         <button data-act="toggle">💬 댓글</button>
 
-        ${
-          isAdmin
-            ? '<button data-act="ratingEdit">⭐ 별점 수정</button>'
-            : ""
+        ${isAdmin
+          ? '<button data-act="ratingEdit">⭐ 별점 수정</button>'
+          : ""
         }
 
-        ${
-          album && mine
-            ? '<button data-act="cedit">🖼 커버 변경</button>'
-            : ""
+        ${album && mine
+          ? '<button data-act="cedit">🖼 커버 변경</button>'
+          : ""
         }
 
-        ${
-          mine
-            ? '<button data-act="del">삭제</button>'
-            : ""
+        ${mine
+          ? '<button data-act="del">삭제</button>'
+          : ""
         }
       </div>
 
@@ -369,7 +355,6 @@ function card(p) {
           <button>등록</button>
         </form>
       </div>
-
     </div>
   </article>`;
 }
@@ -403,8 +388,7 @@ function openComments(id) {
         snap.docs.map((d) => {
           const c = d.data();
 
-          const can =
-            uid &&
+          const can = uid &&
             (isAdmin || c.uid === uid || owner === uid);
 
           return `
@@ -412,10 +396,9 @@ function openComments(id) {
               <b>${esc(c.nick)}</b>
               ${esc(c.text)}
               <small>${when(c.createdAt)}</small>
-              ${
-                can
-                  ? ` <button data-act="cdel" data-cid="${d.id}">×</button>`
-                  : ""
+              ${can
+                ? ` <button data-act="cdel" data-cid="${d.id}">×</button>`
+                : ""
               }
             </li>`;
         }).join("") ||
@@ -427,7 +410,6 @@ function openComments(id) {
 
 /* =========================
    게시물 삭제
-   댓글까지 함께 삭제
 ========================= */
 
 async function removePost(id) {
@@ -439,7 +421,6 @@ async function removePost(id) {
     const b = writeBatch(db);
 
     cs.forEach((d) => b.delete(d.ref));
-
     b.delete(doc(db, "posts", id));
 
     await b.commit();
@@ -450,7 +431,7 @@ async function removePost(id) {
 
 
 /* =========================
-   커버 검색 및 변경
+   커버 변경 기능
 ========================= */
 
 async function searchCover(kw) {
@@ -493,9 +474,8 @@ async function setCover(id, url) {
 
 
 /* =========================
-   게시물 버튼 클릭
-   댓글 / 삭제 / 커버 변경 /
-   별점 수정
+   버튼 클릭 처리
+   댓글 / 별점 / 삭제 / 커버
 ========================= */
 
 $("#list").addEventListener("click", async (e) => {
@@ -508,7 +488,6 @@ $("#list").addEventListener("click", async (e) => {
   const id = cardEl.dataset.id;
 
   try {
-
     /* 댓글 열기 및 닫기 */
     if (act === "toggle") {
       if (open.delete(id)) {
@@ -525,14 +504,11 @@ $("#list").addEventListener("click", async (e) => {
        관리자 별점 수정
     ========================= */
     } else if (act === "ratingEdit") {
-
-      // 관리자 권한 확인
       if (!isAdmin) {
         alert("관리자만 별점을 수정할 수 있어요.");
         return;
       }
 
-      // 게시물 찾기
       const post = posts.find((p) => p.id === id);
 
       if (!post) {
@@ -540,31 +516,25 @@ $("#list").addEventListener("click", async (e) => {
         return;
       }
 
-      // 새 별점 입력창
       const input = prompt(
         "새 별점을 입력하세요 (0.1 ~ 5.0)",
         Number(post.rating ?? 3).toFixed(1)
       );
 
-      // 취소를 누르면 수정하지 않음
       if (input === null) return;
 
       const value = Number(input.trim());
 
-      // 별점 유효성 검사
       if (
         !Number.isFinite(value) ||
         value < 0.1 ||
         value > 5 ||
         Math.abs(value * 10 - Math.round(value * 10)) > 1e-8
       ) {
-        alert(
-          "별점은 0.1 ~ 5.0 사이에서 0.1 단위로 입력해주세요. 예: 4.5"
-        );
+        alert("별점은 0.1 ~ 5.0 사이에서 0.1 단위로 입력해주세요. 예: 4.5");
         return;
       }
 
-      // Firebase Firestore에 별점 저장
       await updateDoc(doc(db, "posts", id), {
         rating: Math.round(value * 10) / 10
       });
@@ -573,9 +543,7 @@ $("#list").addEventListener("click", async (e) => {
 
     /* 게시물 삭제 */
     } else if (act === "del") {
-      if (
-        confirm("이 게시물과 댓글을 모두 삭제할까요?")
-      ) {
+      if (confirm("이 게시물과 댓글을 모두 삭제할까요?")) {
         await removePost(id);
       }
 
@@ -585,7 +553,7 @@ $("#list").addEventListener("click", async (e) => {
         doc(db, "posts", id, "comments", el.dataset.cid)
       );
 
-    /* 앨범 커버 변경 패널 열기 */
+    /* 커버 변경 패널 */
     } else if (act === "cedit") {
       if (ced === id) {
         ced = null;
@@ -604,11 +572,11 @@ $("#list").addEventListener("click", async (e) => {
         cardEl.querySelector(".ck").value.trim()
       );
 
-    /* 검색된 커버 적용 */
+    /* 검색한 커버 적용 */
     } else if (act === "cpick") {
       await setCover(id, el.dataset.url);
 
-    /* 직접 입력한 커버 주소 적용 */
+    /* 직접 입력한 커버 적용 */
     } else if (act === "cset") {
       await setCover(
         id,
@@ -619,7 +587,7 @@ $("#list").addEventListener("click", async (e) => {
     } else if (act === "cnone") {
       await setCover(id, "");
 
-    /* 커버 변경 패널 닫기 */
+    /* 커버 패널 닫기 */
     } else if (act === "cclose") {
       ced = null;
       render();
@@ -668,7 +636,7 @@ $("#list").addEventListener("submit", async (e) => {
 
 
 /* =========================
-   글쓰기 폼의 앨범 커버 검색
+   글쓰기 폼의 커버 검색
 ========================= */
 
 $("#coverBtn").onclick = async () => {
@@ -697,9 +665,6 @@ $("#coverBtn").onclick = async () => {
   }
 };
 
-
-/* 검색 결과에서 커버 선택 */
-
 $("#coverPick").addEventListener("click", (e) => {
   const b = e.target.closest(".pick");
 
@@ -717,7 +682,6 @@ $("#coverPick").addEventListener("click", (e) => {
 
 /* =========================
    게시물 등록
-   앨범 커버는 자동 검색 가능
 ========================= */
 
 $("#postForm").addEventListener("submit", async (e) => {
@@ -802,7 +766,6 @@ $("#postForm").addEventListener("submit", async (e) => {
 
 /* =========================
    탭 전환
-   앨범 / 곡
 ========================= */
 
 function setTab(t) {
