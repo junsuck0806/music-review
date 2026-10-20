@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>뮤직 리뷰 보드</title>
+  <title>준석이의 음평 모음</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>🎧 뮤직 리뷰 보드</h1>
+    <h1>🎧 준석이의 음평 모음</h1>
     <p>앨범과 곡을 평가하고, 다른 사람의 의견도 함께 봐요</p>
   </header>
 
@@ -26,7 +26,13 @@
         <select name="genre" required></select>
         <input name="title" placeholder="앨범명" maxlength="100" required>
         <input name="artist" placeholder="아티스트" maxlength="100" required>
-        <input class="album-only" name="cover" placeholder="앨범 커버 이미지 주소 (선택, https://...)" maxlength="500">
+        <div class="album-only">
+          <div class="coverbox">
+            <input name="cover" placeholder="앨범 커버 주소 (비워두면 자동 검색)" maxlength="500">
+            <button type="button" id="coverBtn">🔍 커버 검색</button>
+          </div>
+          <div id="coverPick" class="coverpick"></div>
+        </div>
         <div class="row album-only">
           <input name="best" placeholder="👍 베스트 트랙" maxlength="100">
           <input name="worst" placeholder="👎 워스트 트랙" maxlength="100">
@@ -39,6 +45,13 @@
         <button>등록하기</button>
       </form>
     </section>
+
+    <div id="sorts" class="sorts">
+      <button class="sort on" data-sort="new">🕒 최신순</button>
+      <button class="sort" data-sort="old">🕰 오래된순</button>
+      <button class="sort" data-sort="high">⭐ 별점 높은순</button>
+      <button class="sort" data-sort="low">별점 낮은순</button>
+    </div>
 
     <section id="list"></section>
   </main>
