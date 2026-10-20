@@ -9,7 +9,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const GENRES = ["힙합", "팝", "발라드", "재즈", "록", "R&B", "하우스", "테크노", "클래식"];
+const GENRES = ["힙합", "팝", "발라드", "재즈", "록", "밴드", "R&B", "하우스", "테크노", "클래식"];
 
 let uid = null, isAdmin = false, tab = "album", genre = "전체", sort = "new", posts = [];
 let ced = null, cands = null, ckw = ""; // 커버 변경 중인 글 id / 검색 결과 / 검색어
