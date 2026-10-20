@@ -1,8 +1,10 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyDMiYMwRvve0Tje6ZPRS7qAmqxF_rE4ogU",
-  authDomain: "music-review-971f8.firebaseapp.com",
-  projectId: "music-review-971f8",
-  storageBucket: "music-review-971f8.firebasestorage.app",
-  messagingSenderId: "878179933106",
-  appId: "1:878179933106:web:30e0dde89188399d3422ab"
+  apiKey: "기존 값 그대로",
+  authDomain: "기존 값 그대로",
+  projectId: "기존 값 그대로",
+  storageBucket: "기존 값 그대로",
+  messagingSenderId: "기존 값 그대로",
+  appId: "기존 값 그대로"
 };
+
+export const adminEmail = "내이메일@gmail.com";
