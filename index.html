@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>뮤직 리뷰 보드</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🎧 뮤직 리뷰 보드</h1>
+    <p>앨범과 곡을 평가하고, 다른 사람의 의견도 함께 봐요</p>
+  </header>
+
+  <main>
+    <nav class="tabs">
+      <button class="tab on" data-tab="album">💿 앨범</button>
+      <button class="tab" data-tab="track">🎵 곡</button>
+    </nav>
+
+    <section class="panel">
+      <h2 id="formTitle"></h2>
+      <form id="postForm">
+        <input name="title" placeholder="앨범명" maxlength="100" required>
+        <input name="artist" placeholder="아티스트" maxlength="100" required>
+        <input class="album-only" name="cover" placeholder="앨범 커버 이미지 주소 (선택, https://...)" maxlength="500">
+        <div class="row album-only">
+          <input name="best" placeholder="👍 베스트 트랙" maxlength="100">
+          <input name="worst" placeholder="👎 워스트 트랙" maxlength="100">
+        </div>
+        <select name="rating">
+          <option value="5">★★★★★ 5점</option>
+          <option value="4">★★★★☆ 4점</option>
+          <option value="3">★★★☆☆ 3점</option>
+          <option value="2">★★☆☆☆ 2점</option>
+          <option value="1">★☆☆☆☆ 1점</option>
+        </select>
+        <textarea name="review" rows="4" placeholder="평가를 자유롭게 써주세요" maxlength="2000" required></textarea>
+        <input name="nick" placeholder="닉네임" maxlength="20" required>
+        <button>등록하기</button>
+      </form>
+    </section>
+
+    <section id="list"></section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
