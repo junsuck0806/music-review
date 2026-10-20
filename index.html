@@ -18,9 +18,12 @@
       <button class="tab" data-tab="track">🎵 곡</button>
     </nav>
 
+    <nav id="genres" class="genres"></nav>
+
     <section class="panel">
       <h2 id="formTitle"></h2>
       <form id="postForm">
+        <select name="genre" required></select>
         <input name="title" placeholder="앨범명" maxlength="100" required>
         <input name="artist" placeholder="아티스트" maxlength="100" required>
         <input class="album-only" name="cover" placeholder="앨범 커버 이미지 주소 (선택, https://...)" maxlength="500">
