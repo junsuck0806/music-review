@@ -67,3 +67,4 @@ footer button{background:none;border:1px solid var(--line);color:var(--sub);bord
 .coveredit{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
 .coveredit .coverbox{margin-top:8px}
 .coveredit .meta{margin-top:8px}
+header h1 .big{font-size:1.7em;color:var(--ac);line-height:1}
